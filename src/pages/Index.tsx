@@ -6,7 +6,7 @@ import GameCard from "@/components/GameCard";
 import GamePlayer from "@/components/GamePlayer";
 import heroBg from "@/assets/hero-bg.jpg";
 
-const CATEGORIES = ["All", "Action", "Racing", "Rhythm", "Sports", "Puzzle", "Horror", "Simulation", "Idle", "Hydra"];
+const CATEGORIES = ["All", "Action", "Racing", "Rhythm", "Sports", "Puzzle", "Horror", "Simulation", "Idle", "Platformer", "Shooter", "Strategy", "Adventure", "Hydra"];
 
 const Index = () => {
   const [search, setSearch] = useState("");
