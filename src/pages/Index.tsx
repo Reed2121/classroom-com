@@ -1,32 +1,34 @@
 import { useState, useMemo } from "react";
-import { Search, Zap } from "lucide-react";
-import { games, categories, Game } from "@/data/games";
+import { Search, Zap, Loader2 } from "lucide-react";
+import { cleverGames, Game } from "@/data/games";
+import { useHydraGames } from "@/hooks/useHydraGames";
 import GameCard from "@/components/GameCard";
 import GamePlayer from "@/components/GamePlayer";
 import heroBg from "@/assets/hero-bg.jpg";
 
+const CATEGORIES = ["All", "Action", "Racing", "Rhythm", "Sports", "Puzzle", "Horror", "Simulation", "Idle", "Hydra"];
+
 const Index = () => {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState("All");
   const [playingGame, setPlayingGame] = useState<Game | null>(null);
+  const { games: hydraGames, loading } = useHydraGames();
+
+  const allGames = useMemo(() => [...cleverGames, ...hydraGames], [hydraGames]);
 
   const filtered = useMemo(() => {
-    return games.filter((g) => {
+    return allGames.filter((g) => {
       const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase());
-      const matchesCategory = !activeCategory || g.category === activeCategory;
+      const matchesCategory = activeCategory === "All" || g.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [search, activeCategory]);
+  }, [search, activeCategory, allGames]);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
-        <img
-          src={heroBg}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-        />
+      <div className="relative h-[45vh] min-h-[320px] flex items-center justify-center overflow-hidden">
+        <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
         <div className="relative z-10 text-center px-4">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -37,7 +39,7 @@ const Index = () => {
             <Zap className="w-10 h-10 text-secondary animate-pulse-neon" />
           </div>
           <p className="text-lg md:text-xl text-muted-foreground font-body font-medium max-w-xl mx-auto">
-            Your ultimate game hub — play instantly, no downloads required.
+            {allGames.length}+ games — play instantly, no downloads required.
           </p>
         </div>
       </div>
@@ -56,20 +58,10 @@ const Index = () => {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveCategory(null)}
-              className={`px-4 py-1.5 rounded-full text-sm font-body font-semibold transition-all ${
-                !activeCategory
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((cat) => (
+            {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
+                onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-sm font-body font-semibold transition-all ${
                   activeCategory === cat
                     ? "bg-primary text-primary-foreground"
@@ -87,13 +79,14 @@ const Index = () => {
       <div className="container max-w-6xl mx-auto px-4 py-10">
         <h2 className="font-display text-2xl font-bold text-foreground mb-6">
           🔥 Games <span className="text-primary">({filtered.length})</span>
+          {loading && <Loader2 className="inline-block w-5 h-5 ml-2 text-primary animate-spin" />}
         </h2>
-        {filtered.length === 0 ? (
+        {filtered.length === 0 && !loading ? (
           <p className="text-center text-muted-foreground py-20 text-lg font-body">
             No games found. Try a different search.
           </p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filtered.map((game) => (
               <GameCard key={game.id} game={game} onPlay={setPlayingGame} />
             ))}
@@ -106,10 +99,7 @@ const Index = () => {
         Mega Evolution © 2026 — Play. Evolve. Dominate.
       </footer>
 
-      {/* Player */}
-      {playingGame && (
-        <GamePlayer game={playingGame} onClose={() => setPlayingGame(null)} />
-      )}
+      {playingGame && <GamePlayer game={playingGame} onClose={() => setPlayingGame(null)} />}
     </div>
   );
 };
