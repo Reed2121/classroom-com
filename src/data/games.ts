@@ -49,7 +49,7 @@ export interface HydraGameRaw {
 export const hydraGameToGame = (raw: HydraGameRaw): Game => ({
   id: `h-${raw.file_name}`,
   name: raw.title,
-  image: `${HYDRA_THUMBS}/${raw.thumb.replace("thumbs/", "")}`,
+  image: raw.thumb ? `${HYDRA_THUMBS}/${raw.thumb.replace("thumbs/", "")}` : "",
   category: "Hydra",
   source: "hydra",
   fileName: raw.file_name,

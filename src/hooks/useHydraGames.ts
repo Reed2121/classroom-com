@@ -9,8 +9,7 @@ export const useHydraGames = () => {
     fetch(HYDRA_GAMES_JSON)
       .then((res) => res.json())
       .then((data: HydraGameRaw[]) => {
-        // Filter out entries with title "1" or very short meaningless titles
-        const valid = data.filter((g) => g.title.length > 1);
+        const valid = data.filter((g) => g.title && g.title.length > 1 && g.file_name);
         setGames(valid.map(hydraGameToGame));
       })
       .catch((err) => console.error("Failed to load Hydra games:", err))
